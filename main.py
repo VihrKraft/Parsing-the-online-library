@@ -45,6 +45,11 @@ for number in range(1, 11):
         book_response = requests.get(book_url)
         book_response.raise_for_status()
         soup = BeautifulSoup(book_response.text, 'lxml')
+        comments = soup.find_all(class_='texts')
+        for comment in comments:
+            comment = comment.find(class_='black')
+            comment = comment.text
+            print(comment)
         title_tag = soup.find('h1')
         title_text = title_tag.text
         title_text = title_text.split('::')
