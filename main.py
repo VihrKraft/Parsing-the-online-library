@@ -49,12 +49,16 @@ for number in range(1, 11):
         for comment in comments:
             comment = comment.find(class_='black')
             comment = comment.text
-            print(comment)
         title_tag = soup.find('h1')
         title_text = title_tag.text
         title_text = title_text.split('::')
         autor = title_text[0].strip()
         book_name = title_text[1].strip()
+        genres = soup.find('span', class_='d_book').find_all('a')
+        book_genres = []
+        for genre in genres:
+            book_genres.append(genre.text)
+        print(f'{book_genres} \n')
         download_txt(response, book_name)
         download_image(book_url)
     except requests.HTTPError:
