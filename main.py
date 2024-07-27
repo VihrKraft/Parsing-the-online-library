@@ -2,6 +2,7 @@ import requests
 from pathlib import Path
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+import argparse
 
 
 def check_for_redirect(response):
@@ -53,10 +54,17 @@ def parse_book_page(book_url):
     return book
 
 
+parser = argparse.ArgumentParser(
+    description='Программа для скачивания книг'
+)
+parser.add_argument('--start_id', help='Id первой книги', type=int, default=1)
+parser.add_argument('--end_id', help='Id последней книги', type=int, default=10)
+args = parser.parse_args()
+
 Path("books").mkdir(parents=True, exist_ok=True)
 Path("img").mkdir(parents=True, exist_ok=True)
 url = "https://tululu.org/txt.php"
-for number in range(1, 11):
+for number in range(args.start_id, args.end_id+1):
     payload = {
         'id': number
     }
