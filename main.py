@@ -15,8 +15,7 @@ def download_txt(response, filename, folder='books/'):
         file.write(response.content)
 
 
-def download_image(book_url):
-    book_image_url = soup.find('div', class_='bookimage').find('img')['src']
+def download_image(book_image_url):
     file_name = book_image_url.split('/')[-1]
     file_path = f'img/{file_name}'
     book_image_url = urljoin(book_url, book_image_url)
@@ -26,8 +25,32 @@ def download_image(book_url):
         file.write(response.content)
     
     
-    
-
+def parse_book_page(book_url):
+    book_response = requests.get(book_url)
+    book_response.raise_for_status()
+    soup = BeautifulSoup(book_response.text, 'lxml')
+    book_image_url = soup.find('div', class_='bookimage').find('img')['src']
+    comments = soup.find_all(class_='texts')
+    for comment in comments:
+        comment = comment.find(class_='black')
+        comment = comment.text
+    title_tag = soup.find('h1')
+    title_text = title_tag.text
+    title_text = title_text.split('::')
+    autor = title_text[0].strip()
+    book_name = title_text[1].strip()
+    genres = soup.find('span', class_='d_book').find_all('a')
+    book_genres = []
+    for genre in genres:
+        book_genres.append(genre.text)
+    book = {
+        'Автор': autor, 
+        'Название': book_name, 
+        'Жанр': book_genres, 
+        'Комментарии': comments,
+        'Ссылка на изображение': book_image_url,
+        }
+    return book
 
 
 Path("books").mkdir(parents=True, exist_ok=True)
@@ -42,24 +65,8 @@ for number in range(1, 11):
         response = requests.get(url, params=payload)
         response.raise_for_status()
         check_for_redirect(response)
-        book_response = requests.get(book_url)
-        book_response.raise_for_status()
-        soup = BeautifulSoup(book_response.text, 'lxml')
-        comments = soup.find_all(class_='texts')
-        for comment in comments:
-            comment = comment.find(class_='black')
-            comment = comment.text
-        title_tag = soup.find('h1')
-        title_text = title_tag.text
-        title_text = title_text.split('::')
-        autor = title_text[0].strip()
-        book_name = title_text[1].strip()
-        genres = soup.find('span', class_='d_book').find_all('a')
-        book_genres = []
-        for genre in genres:
-            book_genres.append(genre.text)
-        print(f'{book_genres} \n')
-        download_txt(response, book_name)
-        download_image(book_url)
+        parse_book = parse_book_page(book_url)
+        download_txt(response, parse_book['Название'])
+        download_image(parse_book['Ссылка на изображение'])
     except requests.HTTPError:
         print('Такой книги нет')
