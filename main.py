@@ -3,7 +3,6 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import argparse
-import time
 
 
 def check_for_redirect(response):
@@ -27,7 +26,9 @@ def download_image(book_image_url):
         file.write(response.content)
     
     
-def parse_book_page(book_response):
+def parse_book_page(book_url):
+    book_response = requests.get(book_url)
+    book_response.raise_for_status()
     soup = BeautifulSoup(book_response.text, 'lxml')
     book_image_url = soup.find('div', class_='bookimage').find('img')['src']
     comments = soup.find_all(class_='texts')
@@ -40,7 +41,9 @@ def parse_book_page(book_response):
     autor = title_text[0].strip()
     book_name = title_text[1].strip()
     genres = soup.find('span', class_='d_book').find_all('a')
-    book_genres = [genre.text for genre in genres]
+    book_genres = []
+    for genre in genres:
+        book_genres.append(genre.text)
     book = {
         'Автор': autor, 
         'Название': book_name, 
@@ -51,39 +54,27 @@ def parse_book_page(book_response):
     return book
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description='Программа для скачивания книг'
-    )
-    parser.add_argument('--start_id', help='Id первой книги', type=int, default=1)
-    parser.add_argument('--end_id', help='Id последней книги', type=int, default=10)
-    args = parser.parse_args()
+parser = argparse.ArgumentParser(
+    description='Программа для скачивания книг'
+)
+parser.add_argument('--start_id', help='Id первой книги', type=int, default=1)
+parser.add_argument('--end_id', help='Id последней книги', type=int, default=10)
+args = parser.parse_args()
 
-    Path("books").mkdir(parents=True, exist_ok=True)
-    Path("img").mkdir(parents=True, exist_ok=True)
-    url = "https://tululu.org/txt.php"
-    for number in range(args.start_id, args.end_id+1):
-        payload = {
-            'id': number
-        }
-        book_url = f'https://tululu.org/b{number}/'
-        try:
-            response = requests.get(url, params=payload)
-            response.raise_for_status()
-            check_for_redirect(response)
-            book_response = requests.get(book_url)
-            book_response.raise_for_status()
-            check_for_redirect(book_response)
-            parse_book = parse_book_page(book_response)
-            download_txt(response, parse_book['Название'])
-            download_image(parse_book['Ссылка на изображение'])
-        except requests.HTTPError:
-            print('Такой книги нет')
-
-        except requests.ConnectionError:
-            print('Нет подключения к интернету')
-            time.sleep(20)
-
-
-if __name__ == '__main__':
-    main()
+Path("books").mkdir(parents=True, exist_ok=True)
+Path("img").mkdir(parents=True, exist_ok=True)
+url = "https://tululu.org/txt.php"
+for number in range(args.start_id, args.end_id+1):
+    payload = {
+        'id': number
+    }
+    book_url = f'https://tululu.org/b{number}/'
+    try:
+        response = requests.get(url, params=payload)
+        response.raise_for_status()
+        check_for_redirect(response)
+        parse_book = parse_book_page(book_url)
+        download_txt(response, parse_book['Название'])
+        download_image(parse_book['Ссылка на изображение'])
+    except requests.HTTPError:
+        print('Такой книги нет')
