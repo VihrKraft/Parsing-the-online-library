@@ -75,6 +75,7 @@ def main():
             check_for_redirect(response)
             book_response = requests.get(book_url)
             book_response.raise_for_status()
+            check_for_redirect(book_response)
             parse_book = parse_book_page(book_response)
             download_txt(response, parse_book['Название'])
             download_image(parse_book['Ссылка на изображение'])
