@@ -40,9 +40,7 @@ def parse_book_page(book_response):
     autor = title_text[0].strip()
     book_name = title_text[1].strip()
     genres = soup.find('span', class_='d_book').find_all('a')
-    book_genres = []
-    for genre in genres:
-        book_genres.append(genre.text)
+    book_genres = [genre.text for genre in genres]
     book = {
         'Автор': autor, 
         'Название': book_name, 
