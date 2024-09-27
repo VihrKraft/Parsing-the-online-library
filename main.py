@@ -54,27 +54,32 @@ def parse_book_page(book_url):
     return book
 
 
-parser = argparse.ArgumentParser(
-    description='Программа для скачивания книг'
-)
-parser.add_argument('--start_id', help='Id первой книги', type=int, default=1)
-parser.add_argument('--end_id', help='Id последней книги', type=int, default=10)
-args = parser.parse_args()
+def main():
+    parser = argparse.ArgumentParser(
+        description='Программа для скачивания книг'
+    )
+    parser.add_argument('--start_id', help='Id первой книги', type=int, default=1)
+    parser.add_argument('--end_id', help='Id последней книги', type=int, default=10)
+    args = parser.parse_args()
 
-Path("books").mkdir(parents=True, exist_ok=True)
-Path("img").mkdir(parents=True, exist_ok=True)
-url = "https://tululu.org/txt.php"
-for number in range(args.start_id, args.end_id+1):
-    payload = {
-        'id': number
-    }
-    book_url = f'https://tululu.org/b{number}/'
-    try:
-        response = requests.get(url, params=payload)
-        response.raise_for_status()
-        check_for_redirect(response)
-        parse_book = parse_book_page(book_url)
-        download_txt(response, parse_book['Название'])
-        download_image(parse_book['Ссылка на изображение'])
-    except requests.HTTPError:
-        print('Такой книги нет')
+    Path("books").mkdir(parents=True, exist_ok=True)
+    Path("img").mkdir(parents=True, exist_ok=True)
+    url = "https://tululu.org/txt.php"
+    for number in range(args.start_id, args.end_id+1):
+        payload = {
+            'id': number
+        }
+        book_url = f'https://tululu.org/b{number}/'
+        try:
+            response = requests.get(url, params=payload)
+            response.raise_for_status()
+            check_for_redirect(response)
+            parse_book = parse_book_page(book_url)
+            download_txt(response, parse_book['Название'])
+            download_image(parse_book['Ссылка на изображение'])
+        except requests.HTTPError:
+            print('Такой книги нет')
+
+
+if __name__ == '__main__':
+    main()
