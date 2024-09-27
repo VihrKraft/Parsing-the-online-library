@@ -16,7 +16,7 @@ def download_txt(response, filename, folder='books/'):
         file.write(response.content)
 
 
-def download_image(book_image_url):
+def download_image(book_image_url, book_url):
     file_name = book_image_url.split('/')[-1]
     file_path = f'img/{file_name}'
     book_image_url = urljoin(book_url, book_image_url)
@@ -76,7 +76,7 @@ def main():
             check_for_redirect(response)
             parse_book = parse_book_page(book_url)
             download_txt(response, parse_book['Название'])
-            download_image(parse_book['Ссылка на изображение'])
+            download_image(parse_book['Ссылка на изображение'], book_url)
         except requests.HTTPError:
             print('Такой книги нет')
 
