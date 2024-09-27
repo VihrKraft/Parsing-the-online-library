@@ -31,9 +31,7 @@ def parse_book_page(book_response):
     soup = BeautifulSoup(book_response.text, 'lxml')
     book_image_url = soup.find('div', class_='bookimage').find('img')['src']
     comments = soup.find_all(class_='texts')
-    for comment in comments:
-        comment = comment.find(class_='black')
-        comment = comment.text
+    list_of_comments = [comment.find(class_='black').text for comment in comments]
     title_tag = soup.find('h1')
     title_text = title_tag.text
     title_text = title_text.split('::')
@@ -45,7 +43,7 @@ def parse_book_page(book_response):
         'autor': autor, 
         'name': book_name, 
         'genre': book_genres, 
-        'comments': comments,
+        'comments': list_of_comments,
         'image_url': book_image_url,
         }
     return book
