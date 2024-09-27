@@ -19,8 +19,8 @@ def download_txt(response, filename, folder='books/'):
 def download_image(book_image_url, book_url):
     file_name = book_image_url.split('/')[-1]
     file_path = f'img/{file_name}'
-    book_image_url = urljoin(book_url, book_image_url)
-    response = requests.get(book_image_url)
+    img_url = urljoin(book_url, book_image_url)
+    response = requests.get(img_url)
     response.raise_for_status()
     with open(file_path, 'wb') as file:
         file.write(response.content)
