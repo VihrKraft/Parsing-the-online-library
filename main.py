@@ -3,6 +3,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import argparse
+import time
 
 
 def check_for_redirect(response):
@@ -79,6 +80,9 @@ def main():
             download_image(parse_book['Ссылка на изображение'], book_url)
         except requests.HTTPError:
             print('Такой книги нет')
+        except requests.ConnectionError:
+            print('Нет подключения к интернету')
+            time.sleep(20)
 
 
 if __name__ == '__main__':
