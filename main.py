@@ -42,11 +42,11 @@ def parse_book_page(book_response):
     genres = soup.find('span', class_='d_book').find_all('a')
     book_genres = [genre.text for genre in genres]
     book = {
-        'Автор': autor, 
-        'Название': book_name, 
-        'Жанр': book_genres, 
-        'Комментарии': comments,
-        'Ссылка на изображение': book_image_url,
+        'autor': autor, 
+        'name': book_name, 
+        'genre': book_genres, 
+        'comments': comments,
+        'image_url': book_image_url,
         }
     return book
 
@@ -75,8 +75,8 @@ def main():
             book_response.raise_for_status()
             check_for_redirect(book_response)
             parse_book = parse_book_page(book_response)
-            download_txt(response, parse_book['Название'])
-            download_image(parse_book['Ссылка на изображение'], book_url)
+            download_txt(response, parse_book['name'])
+            download_image(parse_book['image_url'], book_url)
         except requests.HTTPError:
             print('Такой книги нет')
         except requests.ConnectionError:
