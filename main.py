@@ -27,9 +27,7 @@ def download_image(book_image_url, book_url):
         file.write(response.content)
     
     
-def parse_book_page(book_url):
-    book_response = requests.get(book_url)
-    book_response.raise_for_status()
+def parse_book_page(book_response):
     soup = BeautifulSoup(book_response.text, 'lxml')
     book_image_url = soup.find('div', class_='bookimage').find('img')['src']
     comments = soup.find_all(class_='texts')
@@ -75,7 +73,9 @@ def main():
             response = requests.get(url, params=payload)
             response.raise_for_status()
             check_for_redirect(response)
-            parse_book = parse_book_page(book_url)
+            book_response = requests.get(book_url)
+            book_response.raise_for_status()
+            parse_book = parse_book_page(book_response)
             download_txt(response, parse_book['Название'])
             download_image(parse_book['Ссылка на изображение'], book_url)
         except requests.HTTPError:
