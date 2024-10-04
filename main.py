@@ -71,9 +71,9 @@ def main():
             book_response = requests.get(book_url)
             book_response.raise_for_status()
             check_for_redirect(book_response)
-            book_parse = parse_book_page(book_response)
-            download_txt(response, book_parse['name'])
-            download_image(book_parse['image_url'], book_url)
+            book_parametrs = parse_book_page(book_response)
+            download_txt(response, book_parametrs['name'])
+            download_image(book_parametrs['image_url'], book_url)
         except requests.HTTPError:
             print('Такой книги нет')
         except requests.ConnectionError:
